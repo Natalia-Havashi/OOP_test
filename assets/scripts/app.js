@@ -9,6 +9,7 @@ class DOMHelper {
     const element = document.getElementById(elementId);
     const destinationElement = document.querySelector(newDestinationSelector);
     destinationElement.append(element);
+    element.scrollIntoView({ behavior: "smooth" });
   }
 }
 
@@ -52,7 +53,11 @@ class Tooltip extends Component {
   create() {
     const tooltipElement = document.createElement("div");
     tooltipElement.className = "card";
-    tooltipElement.textContent = this.text;
+    const tooltipTemplate = document.getElementById("tooltip");
+
+    const tooltipBody = document.importNode(tooltipTemplate.content, true);
+    tooltipBody.querySelector("p").textContent = this.text;
+    tooltipElement.append(tooltipBody);
 
     const hostElPosLeft = this.hostElement.offsetLeft;
     const hostElTop = this.hostElement.offsetTop;
@@ -79,6 +84,7 @@ class ProjectItem {
     this.updateProjectListsHandler = updateProjectListsFunction;
     this.connectSwitchButton();
     this.connectMoreInfoButton(type);
+    this.connectDrag();
   }
 
   showMoreInfoHandle() {
@@ -96,6 +102,13 @@ class ProjectItem {
     );
     tooltip.attach();
     this.hasActiveTooltip = true;
+  }
+
+  connectDrag() {
+    document.getElementById(this.id).addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", this.id);
+      e.dataTransfer.effectAllowed = "move";
+    });
   }
 
   connectMoreInfoButton() {
